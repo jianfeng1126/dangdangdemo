@@ -23,7 +23,7 @@ class DangdangSpider(CrawlSpider):
 
     rules = (
         # 找到翻页
-        Rule(LinkExtractor(allow='/\?key=python&act=input&page_index=\d+', restrict_xpaths=("//ul[@name='Fy']/li")),
+        Rule(LinkExtractor(allow='/\?key=%CA%E9&act=input&page_index=\d+', restrict_xpaths=("//ul[@name='Fy']/li")),
              follow=True),  # allow与restrict_xpath配合使用,效果很好,可以更精准筛选链接.
         # 获取详情页
         Rule(LinkExtractor(allow='product.dangdang.com/\d+.html$', restrict_xpaths=("//p[@class='name']/a")),
@@ -32,24 +32,7 @@ class DangdangSpider(CrawlSpider):
 
     )
 
-    # def parse(self, response):
-    #     print(response.url)
-    #     # 这里是body 而不是text
-    #     # 进入到详情页
-    #     soup = BeautifulSoup(response.body, 'lxml')
-    #     all_sec = soup.find('ul', class_='bigimg').find_all('li')
-    #     for sec in all_sec:
-    #         d_link = sec.find('a', class_='pic')['href']
-    #         detail_link = self.base_url + d_link
-    #         if detail_link:
-    #             yield scrapy.Request(detail_link, callback=self.parse_item)
-    #
-    #     # 是否有下一页的链接,如果有就进入下一页
-    #     if soup.find('a', class_='next'):
-    #         next_url = self.base_url + soup.find('a')['href']
-    #         print('next_url  ', next_url)
-    #         # 若果有重复的，则不进行过滤
-    #         yield scrapy.Request(next_url, callback=self.parse, dont_filter=True)
+
     def parse_item(self, response):
         urls = str(response)
         m = re.search('http://product.dangdang.com/\d+.html', urls)
@@ -65,6 +48,7 @@ class DangdangSpider(CrawlSpider):
             item['book_price'] = book_price
             # 获取书的标题
             book_introduction = response.xpath('//div[@id="product_info"]//h2/span/text()').extract_first().strip()
+            # book_introduction = ''.join(response.xpath('//div[@id="content"]/div[@class="descrip"]/text()').extract())
             if book_introduction == '':
                 item['book_introduction'] = '该书没有标明标题'
             else:
@@ -75,7 +59,7 @@ class DangdangSpider(CrawlSpider):
             book_authors = ''  # 作者
             book_publishinghouse = ''  # 出版社
             book_publisheddate = ''  # 出版时间
-            for span in spans:  # 遍历span标签,获取子节点
+            for span in spans:  # 遍历span标签,获取子节点,因为有三个子节点,分别包含作者、出版社以及出版时间
                 if count == 0:  # 获取作者
                     ass = span.css('a')
                     for a in ass:  # 作者可能有多个,需要遍历
@@ -229,7 +213,7 @@ class DangdangSpider(CrawlSpider):
             # 获取评论数
             book_commentsnumber = response.xpath('//div[@class="count_per"]/em/text()')[0].extract()
             # item['book_commentsnumbers'] = book_commentsnumbers[0:1]
-            book_commentsnumbers = re.sub('人评论', '', book_commentsnumber)
+            book_commentsnumbers = re.sub('人评论', '', book_commentsnumber)  # 使用正则去空格
             item['book_commentsnumbers'] = book_commentsnumbers
             # 获取书的网址
             item['book_url'] = response.url
