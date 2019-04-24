@@ -20,7 +20,7 @@ NEWSPIDER_MODULE = 'dangdangdemo.spiders'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
-
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"  #去重
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 

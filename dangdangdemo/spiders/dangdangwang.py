@@ -105,7 +105,7 @@ class DangdangSpider(CrawlSpider):
             item['book_publishinghouse'] = book_publishinghouse
             if item['book_publishinghouse'] == '':  # 判断出版社是否是空值
                 item['book_publishinghouse'] = '没有标明出版社'
-            elif item['book_publishinghouse'] == 'None':  #　判断出版社信息是否等于None,注意:这里的None是字符串.而不是关键字
+            elif item['book_publishinghouse'] == 'None':  # 判断出版社信息是否等于None,注意:这里的None是字符串.而不是关键字
                 if item['book_authors'] == '':  # 如果出版社等于None就说明没有获取到数据,这里判断作者是否为空,因为有的书没有标明作者
                     item['book_publishinghouse'] = response.xpath('//div[@class="messbox_info"]/span/a/text').extract_first().strip()
                 # item['book_publishinghouse'] = book_publishinghouse
