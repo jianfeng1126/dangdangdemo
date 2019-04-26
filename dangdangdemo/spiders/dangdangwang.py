@@ -18,12 +18,12 @@ class DangdangSpider(CrawlSpider):
     name = 'dangdangwang'
     allowed_domains = ['dangdang.com']
     # start_urls = ['http://search.dangdang.com/?key=python&act=input']
-    start_urls = ['http://search.dangdang.com/?key=%CA%E9&act=input']
+    start_urls = ['http://search.dangdang.com/?key=python&act=input']
     base_url = 'http://www.dangdang.com/'
 
     rules = (
         # 找到翻页
-        Rule(LinkExtractor(allow='/\?key=%CA%E9&act=input&page_index=\d+', restrict_xpaths=("//ul[@name='Fy']/li")),
+        Rule(LinkExtractor(allow='/\?key=python&act=input&page_index=\d+', restrict_xpaths=("//ul[@name='Fy']/li")),
              follow=True),  # allow与restrict_xpath配合使用,效果很好,可以更精准筛选链接.
         # 获取详情页
         Rule(LinkExtractor(allow='product.dangdang.com/\d+.html$', restrict_xpaths=("//p[@class='name']/a")),
@@ -31,7 +31,6 @@ class DangdangSpider(CrawlSpider):
              follow=False)  # allow与restrict_xpath配合使用,效果很好,可以更精准筛选链接.
 
     )
-
 
     def parse_item(self, response):
         urls = str(response)
@@ -46,13 +45,13 @@ class DangdangSpider(CrawlSpider):
             # 获取书的价钱
             book_price = response.xpath('//p[@id="dd-price"]/text()')[1].extract().strip()
             item['book_price'] = book_price
-            # 获取书的标题
-            book_introduction = response.xpath('//div[@id="product_info"]//h2/span/text()').extract_first().strip()
-            # book_introduction = ''.join(response.xpath('//div[@id="content"]/div[@class="descrip"]/text()').extract())
-            if book_introduction == '':
-                item['book_introduction'] = '该书没有标明标题'
-            else:
-                item['book_introduction'] = re.sub('\s', '', book_introduction)  # 将其中的所有空白字符删除
+            # # 获取书的标题
+            # book_introduction = response.xpath('//div[@id="product_info"]//h2/span/text()').extract_first().strip()
+            # # book_introduction = ''.join(response.xpath('//div[@id="content"]/div[@class="descrip"]/text()').extract())
+            # if book_introduction == '':
+            #     item['book_introduction'] = '该书没有标明标题'
+            # else:
+            #     item['book_introduction'] = re.sub('\s', '', book_introduction)  # 将其中的所有空白字符删除
             # 获取到作者,出版社,出版时间的父标签
             spans = response.xpath('//div[@class="messbox_info"]/span')
             count = 0
@@ -80,9 +79,9 @@ class DangdangSpider(CrawlSpider):
             item['book_authors'] = book_authors
             # 判断作者是否为空
             if item['book_authors'] == '':
-                item['book_authors'] = '没有标明作者'
+                item['book_authors'] = '暂无作者信息'
             else:
-                item['book_authors'] = book_authors
+                item['book_authors'] = re.sub(',', '', book_authors)
             item['book_publishinghouse'] = book_publishinghouse
             # 判断出版社是否为空
             book_publishinghouse = re.sub(' ', '', book_publishinghouse)  # 使用正则表达式爸空格字符转换成空字符,因为有的出版社信息是字符串
@@ -91,7 +90,8 @@ class DangdangSpider(CrawlSpider):
                 item['book_publishinghouse'] = '没有标明出版社'
             elif item['book_publishinghouse'] == 'None':  # 判断出版社信息是否等于None,注意:这里的None是字符串.而不是关键字
                 if item['book_authors'] == '':  # 如果出版社等于None就说明没有获取到数据,这里判断作者是否为空,因为有的书没有标明作者
-                    item['book_publishinghouse'] = response.xpath('//div[@class="messbox_info"]/span/a/text').extract_first().strip()
+                    item['book_publishinghouse'] = response.xpath(
+                        '//div[@class="messbox_info"]/span/a/text').extract_first().strip()
                 # item['book_publishinghouse'] = book_publishinghouse
                 # item['book_publishinghouse'] = '没有标明出版社'
             if item['book_publishinghouse'] == '':
@@ -104,16 +104,20 @@ class DangdangSpider(CrawlSpider):
             item['book_publisheddate'] = book_publisheddate
             if item['book_publisheddate'] is None:
                 item['book_publisheddate'] = '没有标明出版时间'
-            elif item ['book_authors'] != '' and item['book_publishinghouse'] == 'None' or item['book_publishinghouse'] == '':
+            elif item['book_authors'] != '' and item['book_publishinghouse'] == 'None' or item[
+                'book_publishinghouse'] == '':
                 # 判断作者是否不等于空,并且出版社等于空
-                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text')[1].extract().strip()
+                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text')[
+                    1].extract().strip()
             elif item['book_authors'] == '' and item['book_publishinghouse'] == '':
                 # 判断作者和出版社是否都为空
                 # 测试
-                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text').extract_first().strip()
+                item['book_publisheddate'] = response.xpath(
+                    '//div[@class="messbox_info"]/span/a/text').extract_first().strip()
             elif item['book_authors'] == '':
                 # 判断作者是否为空
-                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text')[1].extract().strip()
+                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text')[
+                    1].extract().strip()
             else:
                 item['book_publisheddate'] = book_publisheddate
             # 获取评论数
@@ -137,10 +141,11 @@ class DangdangSpider(CrawlSpider):
             # 获取书的价钱
             urls = response.url  # 获取json接口
             num = ''.join(re.findall('\d', urls))
-            url = 'http://e.dangdang.com/media/api.go?action=getMedia&deviceSerialNo=html5&macAddr=' \
-                  'html5&channelType=html5&permanentId=20190317144441155341451953931435656&returnType' \
-                  '=json&channelId=70000&clientVersionNo=5.8.4&platformSource=DDDS-P&fromPlatform=106&' \
-                  'deviceType=pconline&token=&refAction=browse&saleId=' + num + '&promotionType=1'
+            url = 'http://e.dangdang.com/media/api.go?action=getMedia&deviceSerialNo=' \
+                  '705501985499679&returnType=json&channelId=70000&clientVersionNo=6.8.0' \
+                  '&platformSource=DDDS-P&fromPlatform=106&deviceType=pconline&token=&refA' \
+                  'ction=browse&saleId='+num+'&promotionType=1'
+            print(url)
             price = requests.get(url)  # 想浏览器发送请求
             info = price.json()  # 解析json
             price1 = info['data']['mediaSale']
@@ -149,15 +154,15 @@ class DangdangSpider(CrawlSpider):
             book_price = price3  # 把价格赋值给book_price
             item['book_price'] = book_price
 
-            # 获取书的简介
-            book_introduction = price2['descs']
-            item['book_introduction'] = book_introduction
-            if book_introduction == '':
-                item['book_introduction'] = '该书没有标明简介'
-            else:
-                # item['book_introduction'] = re.sub('\s', '', book_introduction)  # 将其中的所有空白字符删除
-                book_introduction = ''.join(book_introduction)
-                item['book_introduction'] = re.sub('\s', '', book_introduction)
+            # # 获取书的简介
+            # book_introduction = price2['descs']
+            # item['book_introduction'] = book_introduction
+            # if book_introduction == '':
+            #     item['book_introduction'] = '该书没有标明简介'
+            # else:
+            #     # item['book_introduction'] = re.sub('\s', '', book_introduction)  # 将其中的所有空白字符删除
+            #     book_introduction = ''.join(book_introduction)
+            #     item['book_introduction'] = re.sub('\s', '', book_introduction)
 
             # 获取到作者,出版社,出版时间的父标签
             spans = response.xpath('//div[@class="explain_box"]')
@@ -173,7 +178,7 @@ class DangdangSpider(CrawlSpider):
             if book_authors == '':
                 item['book_authors'] = book_authors
             # 判断作者是否为空
-            if item['book_authors'] == '':
+            if book_authors == '':
                 item['book_authors'] = '没有标明作者'
             else:
                 item['book_authors'] = book_authors
@@ -201,7 +206,7 @@ class DangdangSpider(CrawlSpider):
             if book_publisheddate == '':
                 item['book_publisheddate'] = book_publisheddate
             # 判断出版时间是否为空
-            if item['book_publisheddate'] == '':
+            if book_publisheddate == '':
                 item['book_publisheddate'] = '没有标明出版时间'
             else:
                 nian = book_publisheddate[5:9]  # 获取出版时间中的年
@@ -217,5 +222,4 @@ class DangdangSpider(CrawlSpider):
             item['book_commentsnumbers'] = book_commentsnumbers
             # 获取书的网址
             item['book_url'] = response.url
-            item['url'] = response.url
             yield item

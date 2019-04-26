@@ -16,8 +16,8 @@ class DangdangdemoItem(scrapy.Item):
     book_name = scrapy.Field()
     # 书的售价
     book_price = scrapy.Field()
-    # 书的简介
-    book_introduction = scrapy.Field()
+    # # 书的简介
+    # book_introduction = scrapy.Field()
     # 书的作者
     book_authors = scrapy.Field()
     # 出版社

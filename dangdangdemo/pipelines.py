@@ -21,9 +21,9 @@ class MySqlPipeline(object):
     def process_item(self, item, spider):
         # sql语句
         # 测试分支
-        sql = "INSERT INTO dangdangwang VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO dangdangwang VALUES(%s,%s,%s,%s,%s,%s,%s)"
         self.cursor.execute(sql, (
-            item['book_name'], item['book_price'], item['book_introduction'], item['book_authors'],
+            item['book_name'], item['book_price'], item['book_authors'],
             item['book_publishinghouse'], item['book_publisheddate'], item['book_commentsnumbers'],
             item['book_url']))
         self.connction.commit()
