@@ -13,7 +13,6 @@ class DangdangdemoPipeline(object):
 
 
 class MySqlPipeline(object):
-    # 操作前的准备（打开一个文件夹）
     def open_spider(self, spider):
         self.connction = pymysql.connect("localhost", "gxf", "123456", "gaoxiaofan")
         self.cursor = self.connction.cursor()

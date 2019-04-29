@@ -81,8 +81,8 @@ class DangdangSpider(CrawlSpider):
             if item['book_authors'] == '':
                 item['book_authors'] = '暂无作者信息'
             else:
-                item['book_authors'] = re.sub(',', '', book_authors)
-            item['book_publishinghouse'] = book_publishinghouse
+                item['book_authors'] = book_authors[:-1]  # 使用切片删除字符串的最后一个字符,因为最后一个字符是逗号
+            # item['book_publishinghouse'] = book_publishinghouse
             # 判断出版社是否为空
             book_publishinghouse = re.sub(' ', '', book_publishinghouse)  # 使用正则表达式爸空格字符转换成空字符,因为有的出版社信息是字符串
             item['book_publishinghouse'] = book_publishinghouse
@@ -176,12 +176,9 @@ class DangdangSpider(CrawlSpider):
                 count += 1
             # 判断作者是否为空
             if book_authors == '':
-                item['book_authors'] = book_authors
-            # 判断作者是否为空
-            if book_authors == '':
                 item['book_authors'] = '没有标明作者'
             else:
-                item['book_authors'] = book_authors
+                item['book_authors'] = book_authors[:-1]  # 使用切片删除字符串的最后一个字符,因为最后一个字符是逗号
 
             # 获取出版社
             book_publishinghouse = response.xpath('//p[@id="publisher"]/span/a/text()').extract_first().strip()  # 出版社
