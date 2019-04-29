@@ -14,4 +14,5 @@
    3. 打开项目文件中的dangdangwang.py文件，把画红色红色的地方替换成你复制的链接(和上一布      的格式一样)
    ![当当网](/img/dangdang03.png)
    4. 创建MySQL数据库,和项目中pipelines.py文件的名称一样,数据类型都是text类型,将数据库信息          换成你自己的信息
-   5. 更改完成之后，运行main.py文件
+   5. 更改完成之后，运行main.py文件，效果如下
+   ![当当网](/img/dangdang04.png)
