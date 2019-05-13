@@ -94,6 +94,7 @@ class DangdangSpider(CrawlSpider):
                         '//div[@class="messbox_info"]/span/a/text').extract_first().strip()
                 # item['book_publishinghouse'] = book_publishinghouse
                 # item['book_publishinghouse'] = '没有标明出版社'
+
             if item['book_publishinghouse'] == '':
                 item['book_publishinghouse'] = '没有标明出版社'
             else:
@@ -107,8 +108,7 @@ class DangdangSpider(CrawlSpider):
             elif item['book_authors'] != '' and item['book_publishinghouse'] == 'None' or item[
                 'book_publishinghouse'] == '':
                 # 判断作者是否不等于空,并且出版社等于空
-                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text')[
-                    1].extract().strip()
+                item['book_publisheddate'] = response.xpath('//div[@class="messbox_info"]/span/a/text')[1].extract().strip()
             elif item['book_authors'] == '' and item['book_publishinghouse'] == '':
                 # 判断作者和出版社是否都为空
                 # 测试
@@ -141,10 +141,10 @@ class DangdangSpider(CrawlSpider):
             # 获取书的价钱
             urls = response.url  # 获取json接口
             num = ''.join(re.findall('\d', urls))
-            url = 'http://e.dangdang.com/media/api.go?action=getMedia&deviceSerialNo=' \
-                  '705501985499679&returnType=json&channelId=70000&clientVersionNo=6.8.0' \
-                  '&platformSource=DDDS-P&fromPlatform=106&deviceType=pconline&token=&refA' \
-                  'ction=browse&saleId='+num+'&promotionType=1'
+            url = 'http://e.dangdang.com/media/api.go?action=getMedia&deviceSerialNo=html5&macAddr=' \
+                  'html5&channelType=html5&permanentId=20190513102517003402311866144833876&returnType=j' \
+                  'son&channelId=70000&clientVersionNo=6.8.0&platformSource=DDDS-P&fromPlatform=106&device' \
+                  'Type=pconline&token=&refAction=browse&saleId='+num+'&promotionType=1'
             print(url)
             price = requests.get(url)  # 想浏览器发送请求
             info = price.json()  # 解析json
@@ -181,15 +181,17 @@ class DangdangSpider(CrawlSpider):
                 item['book_authors'] = book_authors[:-1]  # 使用切片删除字符串的最后一个字符,因为最后一个字符是逗号
 
             # 获取出版社
-            book_publishinghouse = response.xpath('//p[@id="publisher"]/span/a/text()').extract_first().strip()  # 出版社
+            book_publishinghouse = response.xpath('//p[@id="publisher"]/span/a/text()').extract_first()  # 出版社
 
             # 判断出版社是否为空
             if book_publishinghouse == '':
                 item['book_publishinghouse'] = '该书没有标明出版社'
             elif book_publishinghouse is None:
                 item['book_publishinghouse'] = '该书没有标明出版社'
-            book_publishinghouse = response.xpath('//p[@id="publisher"]/span/a/text()').extract_first()  # 出版社
-            item['book_publishinghouse'] = book_publishinghouse
+            else:
+                book_publishinghouse = response.xpath(
+                    '//p[@id="publisher"]/span/a/text()').extract_first().strip()  # 出版社
+                item['book_publishinghouse'] = book_publishinghouse
 
             # 判断出版社是否为空
             if item['book_publishinghouse'] == '':
@@ -201,9 +203,9 @@ class DangdangSpider(CrawlSpider):
             book_publisheddate = response.xpath('//div[@class="explain_box"]/p/text()')[2].extract()  # 出版时间
             # 判断出版时间是否为空
             if book_publisheddate == '':
-                item['book_publisheddate'] = book_publisheddate
+                item['book_publisheddate'] = '没有标明出版时间'
             # 判断出版时间是否为空
-            if book_publisheddate == '':
+            elif book_publisheddate == '':
                 item['book_publisheddate'] = '没有标明出版时间'
             else:
                 nian = book_publisheddate[5:9]  # 获取出版时间中的年
